@@ -129,7 +129,7 @@ const init = async () => {
           status: 'fail',
           message: response.message,
         });
-        console.error(response);
+        // console.error(response);
         newResponse.code(response.statusCode);
         return newResponse;
       }

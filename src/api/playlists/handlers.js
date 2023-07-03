@@ -101,11 +101,11 @@ class PlaylistsHandlers {
   }
 
   async getActivitiesByPlaylistIdHandler(request) {
-    const { playlistId } = request.params;
+    const { id: playlistId } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
     await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
-    const activities = await this._songsService.getSongsByPlaylistId(playlistId);
+    const activities = await this._playlistsService.getActivitiesByPlaylistId(playlistId);
 
     return {
       status: 'success',

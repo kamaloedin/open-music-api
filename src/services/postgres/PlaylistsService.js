@@ -53,7 +53,7 @@ class PlaylistsService {
     }
   }
 
-  async addPlaylistSongByPlaylistId(playlistId, songId, user_id) {
+  async addPlaylistSongByPlaylistId(playlistId, songId, userId) {
     const id = `playlistSong-${nanoid(16)}`;
 
     const query = {
@@ -63,7 +63,7 @@ class PlaylistsService {
 
     const result = await this._pool.query(query);
 
-    await this.addPlaylistSongActivity(playlistId, songId, user_id, 'delete');
+    await this.addPlaylistSongActivity(playlistId, songId, userId, 'add');
 
     if (!result.rows[0].id) {
       throw new InvariantError('Failed to add song into the playlist');
@@ -166,12 +166,12 @@ class PlaylistsService {
   async getActivitiesByPlaylistId(playlistId) {
     const query = {
       text: `SELECT u.username, s.title, a.action, a.time
-      FROM playlist_song_activities a
-      LEFT JOIN playlists p ON p.id = a.playlist_id
-      LEFT JOIN users u ON u.id = p.owner
-      LEFT JOIN playlist_songs ps ON ps.playlist_id = p.id
-      LEFT JOIN songs s ON s.id = ps.song_id
-      WHERE playlists.id = $1`,
+      FROM playlist_song_activities as a
+      LEFT JOIN playlists as p ON p.id = a.playlist_id
+      LEFT JOIN users as u ON u.id = p.owner
+      LEFT JOIN playlist_songs as ps ON ps.playlist_id = p.id
+      LEFT JOIN songs as s ON s.id = ps.song_id
+      WHERE p.id = $1`,
       values: [playlistId],
     };
 
@@ -181,7 +181,7 @@ class PlaylistsService {
       throw new NotFoundError('Playlist cannot be found');
     }
 
-    return result.rows[0];
+    return result.rows;
   }
 }
 
