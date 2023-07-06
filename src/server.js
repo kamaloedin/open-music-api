@@ -32,11 +32,11 @@ const TokenManager = require('./tokenize/TokenManager');
 
 const init = async () => {
   const songsService = new SongsService();
+  const collaborationsService = new CollaborationsService();
+  const playlistsService = new PlaylistsService(collaborationsService);
   const albumsService = new AlbumsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
-  const playlistsService = new PlaylistsService();
-  const collaborationsService = new CollaborationsService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -115,6 +115,7 @@ const init = async () => {
       options: {
         collaborationsService,
         playlistsService,
+        usersService,
         validator: CollaborationsValidator,
       },
     },
@@ -129,7 +130,7 @@ const init = async () => {
           status: 'fail',
           message: response.message,
         });
-        // console.error(response);
+        console.error(response);
         newResponse.code(response.statusCode);
         return newResponse;
       }

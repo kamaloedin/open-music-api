@@ -27,15 +27,19 @@ class PlaylistsService {
     return result.rows[0].id;
   }
 
-  async getPlaylists(owner) {
+  async getPlaylists(userId) {
     const query = {
-      text: `SELECT playlists.id, playlists.name, users.username  FROM playlists
-      LEFT JOIN users ON users.id = playlists.owner
-      WHERE owner = $1`,
-      values: [owner],
+      text: `SELECT p.id, p.name, u.username  FROM playlists p
+      LEFT JOIN collaborations c ON c.playlist_id = p.id
+      LEFT JOIN users u ON u.id = p.owner
+      WHERE p.owner = $1 OR c.user_id = $1`,
+      values: [userId],
     };
 
     const result = await this._pool.query(query);
+
+    console.log(userId);
+    console.log(result.rows);
 
     return result.rows;
   }
@@ -142,6 +146,7 @@ class PlaylistsService {
         throw error;
       }
       try {
+        console.log(this._collaborationsService);
         await this._collaborationsService.verifyCollaborator(playlistId, userId);
       } catch {
         throw error;
@@ -167,11 +172,9 @@ class PlaylistsService {
     const query = {
       text: `SELECT u.username, s.title, a.action, a.time
       FROM playlist_song_activities as a
-      LEFT JOIN playlists as p ON p.id = a.playlist_id
-      LEFT JOIN users as u ON u.id = p.owner
-      LEFT JOIN playlist_songs as ps ON ps.playlist_id = p.id
-      LEFT JOIN songs as s ON s.id = ps.song_id
-      WHERE p.id = $1`,
+      INNER JOIN songs s ON s.id = a.song_id
+      INNER JOIN users u ON u.id = a.user_id
+      WHERE a.playlist_id = $1`,
       values: [playlistId],
     };
 

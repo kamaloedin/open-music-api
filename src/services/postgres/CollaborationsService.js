@@ -9,11 +9,17 @@ class CollaborationsService {
 
   async addCollaboration(playlistId, userId) {
     const id = `collab-${nanoid(16)}`;
+
     const query = {
       text: 'INSERT INTO collaborations VALUES($1, $2, $3) RETURNING id',
       values: [id, playlistId, userId],
     };
+
     const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new InvariantError('Failed to add collaboration');
+    }
 
     return result.rows[0].id;
   }
@@ -27,7 +33,7 @@ class CollaborationsService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new InvariantError('Kolaborasi gagal dihapus');
+      throw new InvariantError('Failed to delete collaborations');
     }
   }
 
@@ -40,7 +46,7 @@ class CollaborationsService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new InvariantError('Kolaborasi gagal diverifikasi');
+      throw new InvariantError('Failed to verify collaborator');
     }
   }
 }
