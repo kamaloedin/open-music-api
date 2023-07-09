@@ -38,9 +38,6 @@ class PlaylistsService {
 
     const result = await this._pool.query(query);
 
-    console.log(userId);
-    console.log(result.rows);
-
     return result.rows;
   }
 
@@ -146,7 +143,6 @@ class PlaylistsService {
         throw error;
       }
       try {
-        console.log(this._collaborationsService);
         await this._collaborationsService.verifyCollaborator(playlistId, userId);
       } catch {
         throw error;
